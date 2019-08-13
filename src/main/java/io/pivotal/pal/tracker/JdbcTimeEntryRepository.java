@@ -41,24 +41,10 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository{
 
     @Override
     public TimeEntry find(long id) {
-        try {
-            Map<String, Object> foundEntry = jdbcTemplate.queryForMap("Select * from time_entries where id = ?", id);
-            if (foundEntry.isEmpty()) {
-                return null;
-            } else {
-                long timeEntryid = (long) foundEntry.get("id");
-                long project_id = (long) foundEntry.get("project_id");
-                long user_id = (long) foundEntry.get("user_id");
-                java.sql.Date sDate = (java.sql.Date) foundEntry.get("date");
-                int hours = (int) foundEntry.get("hours");
-                LocalDate lDate = sDate.toLocalDate();
-                TimeEntry te = new TimeEntry(timeEntryid, project_id, user_id, lDate, hours);
-                return te;
-            }
-        }catch(EmptyResultDataAccessException emptyexception)
-        {
-            return null;
-        }
+        return jdbcTemplate.query(
+                "SELECT id, project_id, user_id, date, hours FROM time_entries WHERE id = ?",
+                new Object[]{id},
+                extractor);
     }
 
     @Override
